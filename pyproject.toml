@@ -9,6 +9,9 @@ description = "Evaluation-guided revisions and improvement metrics."
 requires-python = ">=3.11"
 dependencies = []
 
+[project.scripts]
+reflect-agent = "self_reflective_agent.__main__:main"
+
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff==0.17.3"]
 

@@ -26,6 +26,8 @@ pytest -q
 
 For live model calls, set `OPENAI_API_KEY` and optionally `OPENAI_MODEL` and `OPENAI_BASE_URL` as shown in `.env.example`. The test suite uses stubs and needs no model key.
 
+The installed `reflect-agent` command runs a real solver/judge loop. Example: `reflect-agent --db evaluations.sqlite3 --solver-model model-a --judge-model model-b reflect "Write an incident summary" --constraint "Include next steps" --must-include "next steps"`. `reflect-agent --db evaluations.sqlite3 metrics` reads persisted scores without a model key. Run `reflect-agent --db evaluations.sqlite3 serve --port 8080` to use the local browser. Required phrases are checked deterministically; the judge score is an internal signal, not a substitute for held out evaluation.
+
 ```python
 from self_reflective_agent.engine import SelfReflectiveAgent
 from self_reflective_agent.llm import OpenAICompatibleLLM
@@ -40,6 +42,8 @@ print(result.answer, result.history, agent.metrics())
 
 ```mermaid
 flowchart LR
+    CLI[Command line] --> Task
+    Browser[Browser interface] --> Task
     Task[Task and constraints] --> Solver[Solver draft]
     Solver --> Judge[LLM judge]
     Solver --> Rules[Deterministic validator]
@@ -62,6 +66,8 @@ Task and constraints -> solver -> JSON judge verdict -> durable metric -> bounde
 See [ARCHITECTURE.md](ARCHITECTURE.md) for components, state, failure behavior, and operations.
 
 ## Deployment and safety
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the non-root container, token-protected browser, data mounts, and release checks.
 
 LLM-as-judge scores are subjective and can be gamed. Use a separate judge model and a held out evaluation set before treating score changes as real quality improvement.
 
