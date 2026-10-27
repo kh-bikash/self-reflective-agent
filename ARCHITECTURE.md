@@ -29,3 +29,9 @@ The LLM adapter times out after 30 seconds and retries transient HTTP failures t
 3. Persist SQLite files on durable storage and back them up; migrate to a managed database for high write volume or multiple replicas.
 4. Run `pytest -q` in CI before deployment.
 5. Define workload specific evaluation cases, latency objectives, and rollback criteria before serving real users.
+
+## Evaluation loop
+
+The solver drafts a response to the task and constraints. A separate judge prompt must return JSON with a 0..1 score and specific feedback. An optional deterministic validator checks hard constraints and overrides the score to zero on violations. Scores, feedback, revision number, and run ID are persisted in SQLite. The solver sees the feedback for a bounded number of revisions; the returned answer is the best scored candidate, so a worse revision does not replace it.
+
+`metrics()` reports evaluation count, mean score, run count, and mean best-over-first improvement. Treat those as internal diagnostics. A held out task set, independent graders, and human review are needed before claiming real quality gains. Invalid judge output scores zero and triggers a bounded revision.

@@ -2,6 +2,8 @@
 
 Iteratively evaluate an answer against constraints, revise it, and retain the highest scoring candidate with metrics.
 
+Supply a deterministic `validator(task, answer, constraints)` for rules that must never be left to an LLM judge. Each run records first and best scores so `metrics()` reports measured improvement across runs.
+
 ## Quick start
 
 Requires Python 3.11 or newer. From this repository:
