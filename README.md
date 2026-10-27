@@ -38,6 +38,25 @@ print(result.answer, result.history, agent.metrics())
 
 ## Architecture
 
+```mermaid
+flowchart LR
+    Task[Task and constraints] --> Solver[Solver draft]
+    Solver --> Judge[LLM judge]
+    Solver --> Rules[Deterministic validator]
+    Judge --> Score[Combined verdict]
+    Rules --> Score
+    Score --> Ledger[(Evaluation history)]
+    Score -->|Below threshold and revisions remain| Revise[Feedback revision]
+    Revise --> Solver
+    Score --> Best[Best scored answer and improvement]
+```
+
+| Component | Responsibility |
+|---|---|
+| Solver | Produces and revises answers under explicit constraints. |
+| Evaluation gate | Combines typed judge feedback with deterministic violations. |
+| History | Stores each revision and reports best-over-first improvement. |
+
 Task and constraints -> solver -> JSON judge verdict -> durable metric -> bounded revision -> best answer.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for components, state, failure behavior, and operations.
