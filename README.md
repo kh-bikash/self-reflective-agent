@@ -1,8 +1,17 @@
 # Self Reflective Agent
 
-Iteratively evaluate an answer against constraints, revise it, and retain the highest scoring candidate with metrics.
+## About
 
-Supply a deterministic `validator(task, answer, constraints)` for rules that must never be left to an LLM judge. Each run records first and best scores so `metrics()` reports measured improvement across runs.
+This app gives a model a chance to improve an answer before returning it. It drafts a response, checks that response against your instructions and a judge model, then revises it a limited number of times. It keeps the best version and saves the scores from each run so you can see whether revisions helped.
+
+### What you can do
+
+- Give a task with constraints such as a required phrase or format.
+- Apply deterministic checks for rules that must be followed exactly.
+- Inspect the first answer, revisions, judge feedback, and final score.
+- Review saved metrics across runs from the CLI or local browser.
+
+The CLI, local browser, and Python library work with a configured model provider. A judge score is an internal signal and can be mistaken, so use a separate evaluation set before claiming real quality improvement. The product has no public hosted URL yet.
 
 ## Quick start
 
