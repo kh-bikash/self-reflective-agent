@@ -86,6 +86,41 @@ Install this as a library in an authenticated application or worker. Supply the 
 
 `pytest -q` runs deterministic tests. GitHub Actions runs the same suite on pushes and pull requests.
 
+## Product guide
+
+### A review cycle
+
+The solver drafts an answer to the task. A judge model scores that answer and returns feedback, while a deterministic validator checks rules that must be enforced exactly. If the result is below the threshold and revisions remain, the solver receives the feedback and tries again. The app stores each attempt and returns the highest-scoring candidate, which may be an earlier version if a later revision gets worse.
+
+| Input or setting | Effect |
+|---|---|
+| Task | The question or writing request to solve. |
+| Constraints | Instructions for the solver and judge to consider. |
+| Required phrases | Deterministic checks for text that must appear. |
+| `threshold` | Score at which the loop may stop early. |
+| `max_revisions` | Maximum number of further drafts. |
+
+The CLI example uses `reflect` to run one review cycle and `metrics` to inspect persisted results. The local browser exposes the same actions. The Python library accepts a custom `validator(task, answer, constraints)` for rules such as required structure, prohibited content, or application-specific checks.
+
+### Reading the metrics
+
+The ledger records the first and best score for each run so you can measure what changed during the loop. A positive best-over-first difference means the system improved according to its current judge and rules; it does not prove that real users will prefer the result. Judge models may be inconsistent or reward persuasive but incorrect wording. Use held-out examples, a separate judge, and human review before making quality claims.
+
+### Configuration and operations
+
+Set `OPENAI_API_KEY` and optionally `OPENAI_BASE_URL`. The CLI accepts solver and judge model IDs, allowing separate models if your provider supports them. Keep the SQLite evaluation file on persistent storage if historical metrics matter. Limit revisions to control latency and provider use. Run the tests after changing score thresholds or validators, and check a few known tasks by hand. [ARCHITECTURE.md](ARCHITECTURE.md) explains scoring and failure handling; [DEPLOYMENT.md](DEPLOYMENT.md) covers the container and local browser. There is no public hosted deployment yet.
+
+### Common issues
+
+| Symptom | Check |
+|---|---|
+| A required phrase is missing | Add it through `--must-include` or the custom deterministic validator. |
+| Scores rise but answers do not improve | Judge scores are not user outcomes; compare with a held-out human-reviewed set. |
+| The loop keeps revising | Lower `max_revisions`, improve the constraints, or review whether the threshold is attainable. |
+| `metrics` shows no history | Confirm it reads the same SQLite file used by `reflect`. |
+
+Keep evaluation examples separate from prompts used to tune the solver. Otherwise apparent improvement may reflect overfitting to the judge or known examples.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
